@@ -1,5 +1,5 @@
 library(tidyverse)
-library(rstan)
+library(cmdstanr)
 library(here)
 library(tmvtnorm)
 library(psych)
@@ -13,8 +13,8 @@ library(bayesplot)
 
 set.seed(666)
 
-source("M3_functions.R")
-source("lba.R")
+source("Functions/M3_functions.R")
+source("Functions/lba.r")
 
 ##### TESTING 
 test <- matrix(NaN,ncol=4, nrow=10000)
@@ -98,9 +98,9 @@ simActs_CSpan <-simData_CSpan <- function(parmsMMM,respOpts,nRetrievals,SetSize,
 
 # Simulate Activations on Trial Level for Simulating LBA Data #
 
-n_subjects <- 5
+n_subjects <- 20
 respOpt<-respOpt_Cspan(4,8)
-nTrials <- 30
+nTrials <- 50
 SetSize <- 5
 n_choice <- 5
 n_obs <- nTrials*SetSize
@@ -268,6 +268,9 @@ init_lba <-function()
   list(v_mu = cbind(runif(stan.dat$NUM_SUBJ,5,10)))}
 
 
+## Fit LBA 
+lba <- cmdstan_model("Models/lba_hier_nc.stan")
+
 
 stan.dat <- list(RT=RT_data,
                  TEST_LENGTH=n_obs,
@@ -275,14 +278,14 @@ stan.dat <- list(RT=RT_data,
                  NUM_CHOICES=5)
 
 
-fit_lba_drift <- stan("LBA/LBA_hier.stan",
-                      data = stan.dat,
-                      iter=500,chains=4,
-                      warmup = 150,
-                      cores=4,refresh=100,
-                      control=list(max_treedepth=15))
+fit_lba_drift <- lba$sample(data = stan.dat,
+                            iter_warmup = 500,
+                            iter_sampling = 2000,
+                            chains=4,parallel_chains = 4,
+                            refresh=100,
+                            max_treedepth=15)
 
-print(fit_lba_drift)
+print(fit_lba_drift$draws("v",mean))
 
 post_drift <- extract(fit_lba_drift,pars="v")
 post_pred <- extract(fit_lba_drift,pars="pred")
