@@ -164,8 +164,8 @@ data{
 parameters {
 
   vector[NUM_CHOICES] v_raw[NUM_SUBJ];
-  real<lower=0> A_raw[NUM_SUBJ];
-  real<lower=0> psi_raw[NUM_SUBJ];
+  real A_raw[NUM_SUBJ];
+  real psi_raw[NUM_SUBJ];
   real<lower=0> k_sigma;
   real<lower=0> A_sigma;
   real<lower=0> psi_sigma;

@@ -88,7 +88,7 @@ functions{
 
 data {
   int<lower=1> N;									// number of data items
-  int<lower=1> L;									// number of levels
+  int<lower=1> L;									// number of levels / trials 
   
   int<lower=1, upper=L> participant[N];			// level (participant)
   
